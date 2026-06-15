@@ -1,6 +1,6 @@
 ---
 name: path-to-goal
-description: "Use when Sam asks for path-to-goal, unconfuse, or a concise status update for goal-focused software work, tradeoffs, decisions, and next steps."
+description: "Use when asked for path-to-goal, unconfuse, or a concise status update for goal-focused software work, tradeoffs, decisions, and next steps."
 ---
 
 # Path to goal
