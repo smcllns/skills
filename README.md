@@ -9,6 +9,7 @@ Some of the skills I've written and use regularly across my AI agents
 | Skill | Description |
 |---|---|
 | [`path-to-goal`](path-to-goal/SKILL.md) | You need a concise status update format for goal-focused software work, tradeoffs, decisions, and next steps. |
+| [`unconfuse-me`](path-to-goal/SKILL.md) | Alias for path-to-goal skill |
 | [`obsidian-html-docs`](obsidian-html-docs/SKILL.md) | You are creating `.html` docs intended to render inline in Obsidian with the HTML Docs plugin. |
 | [`token-count`](token-count/SKILL.md) | You need a free, accurate token count across Anthropic, Gemini, and OpenAI for prompt budgeting. |
 
