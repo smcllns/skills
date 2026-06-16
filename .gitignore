@@ -3,15 +3,7 @@
 **/node_modules
 **/bun.lock
 **/bun.lockb
-skills/atag/reference/model-comparison/results/
-skills/atag/dev/
-claude-plugins/atag/skills/atag/reference/model-comparison/results/
-claude-plugins/atag/skills/atag/dev/
-codex-plugins/atag/skills/atag/reference/model-comparison/results/
-codex-plugins/atag/skills/atag/dev/
 
-docs/handoffs/*
-!docs/handoffs/atag-naming-plan-2026-05-26.md
-docs/plans/
-!.agents/
 .agents/plans/
+.agents/handoffs/
+.agents/memory/

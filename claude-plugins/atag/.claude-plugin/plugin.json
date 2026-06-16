@@ -1,6 +1,0 @@
-{
-  "name": "atag",
-  "description": "Resolve @agent tags in markdown files and record the exchange in callout threads.",
-  "author": { "name": "Sam Collins" },
-  "keywords": ["markdown", "obsidian", "tags", "@agent", "async", "callouts", "agents", "notes"]
-}
