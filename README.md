@@ -1,32 +1,27 @@
 # @smcllns/skills
 
-Small, standalone agent skills I use across harnesses.
+Some of the skills I've written and use regularly across my AI agents
 
 ![Dark workbench of agent tools](skills-marketplace-hero.png)
 
 ## Skills
 
-| Skill | Use when |
+| Skill | Description |
 |---|---|
 | [`path-to-goal`](path-to-goal/SKILL.md) | You need a concise status update format for goal-focused software work, tradeoffs, decisions, and next steps. |
 | [`obsidian-html-docs`](obsidian-html-docs/SKILL.md) | You are creating `.html` docs intended to render inline in Obsidian with the HTML Docs plugin. |
 | [`token-count`](token-count/SKILL.md) | You need a free, accurate token count across Anthropic, Gemini, and OpenAI for prompt budgeting. |
 
-## Layout
+## Install
 
-Each root-level directory is a standalone skill:
+Using skills.sh install:
 
-```text
-skills/
-|-- path-to-goal/
-|-- obsidian-html-docs/
-|-- token-count/
-|-- README.md
-|-- LICENSE
-`-- skills-marketplace-hero.png
+```
+pnpm dlx skills@latest add smcllns/skills
 ```
 
-Only standalone skills live here.
+Or, ask your agent to install the skill from [github.com/smcllns/skills](https://github.com/smcllns/skills)
+
 
 ## License
 

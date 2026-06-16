@@ -5,7 +5,7 @@ description: A status update format for a goal-focused software-engineering cult
 
 # Path to goal
 
-With ELI10 clarity, summarize: 
+With ELI10 clarity, summarize:
 - our goal
 - the current status
 - a numbered checklist to goal with ✅ or ⬜
