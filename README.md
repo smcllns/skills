@@ -13,6 +13,7 @@ Some of the skills I've written and use regularly across my AI agents
 | [`obsidian-html-docs`](obsidian-html-docs/SKILL.md) | Use when creating .html docs intended to render inline in Obsidian with the HTML Docs plugin (github.com/smcllns/obsidian-plugin-html-docs). |
 | [`token-count`](token-count/SKILL.md) | Use when you need a free, accurate token count across Anthropic/Gemini/OpenAI for prompt budgeting, skill sizing, or annotating file references. Returns per-vendor counts and a range string. |
 | [`social-research`](social-research/SKILL.md) | Runs a search across social sources like Reddit, Hacker News, GitHub, YouTube, X, web (Brave), Polymarket, TikTok, Instagram, Threads, and Pinterest. Use when asked to research or find the best or popular options for something to enhance web search with what people are saying on that topic across social channels. |
+| [`x-twitter-data`](x-twitter-data/SKILL.md) | Use Xquik for X or Twitter data lookups, MCP setup, SDK routing, and approval-gated account actions. |
 
 ## Install
 
