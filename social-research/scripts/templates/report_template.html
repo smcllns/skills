@@ -11,11 +11,12 @@
   NOT a skin to ship verbatim — doing so makes every report look templated, the
   exact problem this skeleton exists to avoid.
 
-  Before filling this in you MUST run the `frontend-design:frontend-design`
-  skill to design a palette (LIGHT *and* DARK), a display+body+utility type
-  pairing, type scale, spacing rhythm and one topic-specific aesthetic risk for
-  THIS report's subject, then override the token blocks (and marker/map styling)
-  accordingly. See HTML_REPORT.md for the full process.
+  Before filling this in, do a design pass for THIS report's subject: a palette
+  (LIGHT *and* DARK), a display+body+utility type pairing, type scale, spacing
+  rhythm and one topic-specific aesthetic risk, then override the token blocks
+  (and marker/map styling) accordingly. Anthropic's official `frontend-design`
+  plugin is recommended for this if installed (optional, not bundled). See
+  HTML_REPORT.md for the full process.
 
   Rules baked into this skeleton:
   - One self-contained file. Images are base64 data-URIs (no hotlinks, no local
@@ -40,7 +41,7 @@
 <title><!-- TITLE: the research question --></title>
 <style>
   /* ============================================================
-     DESIGN TOKENS — override per report using frontend-design.
+     DESIGN TOKENS — override per report in your design pass.
      LIGHT is the :root default; DARK overrides follow. Neutral.
      ============================================================ */
   :root {
@@ -77,7 +78,7 @@
   }
 
   /* DARK TOKENS — a genuine dark palette, NOT an inversion. Tune per report
-     with frontend-design. Applied two ways:
+     in your design pass. Applied two ways:
        1. system preference, unless the reader forced light;
        2. explicit data-theme="dark" from the toggle. */
   @media (prefers-color-scheme: dark) {
