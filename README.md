@@ -18,11 +18,15 @@ Some of the skills I've written and use regularly across my AI agents
 
 Using skills.sh install:
 
-```
+```bash
 npx skills@latest add smcllns/skills
 ```
 
-Or, ask your agent to install the skill from [github.com/smcllns/skills](https://github.com/smcllns/skills)
+Or have your agent do it for you:
+
+```markdown
+Install path-to-goal skill from https://github.com/smcllns/skills and show me how it works
+```
 
 
 ## License
