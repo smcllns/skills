@@ -22,11 +22,15 @@ Skip it for quick lookups or raw evidence dumps — `report.md` is enough.
   not exotic faces.
 - **Light *and* dark mode**, defaulting to the OS preference (see below).
 
-## Step 1 — design the visuals (MANDATORY: run `frontend-design`)
+## Step 1 — design the visuals (do a real design pass)
 
-Before touching the template, invoke the **`frontend-design:frontend-design`**
-skill and design a fresh visual identity for *this* report's subject. This is the
-fix for "the report looks templated." Produce, and then apply:
+Before touching the template, design a fresh visual identity for *this* report's
+subject — this is the fix for "the report looks templated." If a design skill is
+available, use it: Anthropic's official **`frontend-design`** plugin
+(`frontend-design:frontend-design`, from the `claude-plugins-official`
+marketplace) is purpose-built for this and recommended. It is optional and not
+bundled with this skill — if it isn't installed, apply the same principles
+yourself using the guidance below. Either way, produce and then apply:
 
 - a 4–6 colour named-hex **palette** — **and a genuine dark variant of it** (see
   *Light + dark mode* below), not a mechanical inversion,
@@ -35,13 +39,13 @@ fix for "the report looks templated." Produce, and then apply:
 - **one topic-specific aesthetic risk** you can justify from the subject matter.
 
 Ground every choice in the subject's own world (a hotels report and a keyboards
-report must not look alike). Avoid the three AI defaults frontend-design warns
-about (cream+serif+terracotta; near-black+acid-green; broadsheet hairlines).
+report must not look alike). Avoid the three AI defaults (cream+serif+terracotta;
+near-black+acid-green; broadsheet hairlines).
 
 > The template at `scripts/templates/report_template.html` is a **structural
 > skeleton**, not a skin. Its neutral default styling MUST be overridden — shipping
 > it unchanged reintroduces the templated look. Override the `:root` design tokens
-> (and marker/map styling) with the direction frontend-design gives you.
+> (and marker/map styling) with the direction from your design pass.
 
 ## Step 2 — fill the template
 
@@ -95,7 +99,7 @@ and `:root[data-theme="dark"]`. A **light / system / dark** segmented toggle in
 the header overrides the OS default and **persists to `localStorage`**; an inline
 `<head>` script restores the choice before first paint (no flash).
 
-Design a **real dark palette** with frontend-design — recompute every token
+Design a **real dark palette** in your design pass — recompute every token
 (deep-but-not-black surfaces, raised cards, an accent that keeps contrast on
 dark), don't just invert the light one. The header is tokenised (`--header-bg`,
 `--header-ink`, `--header-sub`, `--header-line`) so it reads correctly in both
