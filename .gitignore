@@ -3,6 +3,8 @@
 **/node_modules
 **/bun.lock
 **/bun.lockb
+__pycache__/
+*.pyc
 
 .agents/plans/
 .agents/handoffs/
