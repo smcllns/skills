@@ -86,12 +86,11 @@ Do not add these to v1:
 
 - watchlists or SQLite stores
 - comparison/competitor mode
-- HTML briefs
 - setup wizard
 - browser cookie or keychain extraction
 - internal LLM planning/reranking
 - quality-nudge UI
 
-Perplexity is intentionally excluded from v1 because it is already synthesized research rather than primary-ish evidence.
+HTML reports are coming in v1.1.
 
 Future sources to consider after v1 proves useful: Perplexity, Product Hunt, Wirecutter/NYT Article Search, CNET, PCMag, The Verge, Consumer Reports, G2, Capterra, Trustpilot, Amazon reviews, app store reviews, Steam, Chrome Web Store, GitHub Discussions, Discord exports, Bluesky, Mastodon, LinkedIn, Substack, Medium, podcasts/transcripts, and RSS feeds.
