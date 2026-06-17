@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  social-research HTML report — STRUCTURAL SKELETON.
+
+  This file fixes STRUCTURE, MECHANICS and ACCESSIBILITY only. The styling below
+  is a deliberately NEUTRAL default (slate / teal / stone, light + dark). It is
+  NOT a skin to ship verbatim — doing so makes every report look templated, the
+  exact problem this skeleton exists to avoid.
+
+  Before filling this in you MUST run the `frontend-design:frontend-design`
+  skill to design a palette (LIGHT *and* DARK), a display+body+utility type
+  pairing, type scale, spacing rhythm and one topic-specific aesthetic risk for
+  THIS report's subject, then override the token blocks (and marker/map styling)
+  accordingly. See HTML_REPORT.md for the full process.
+
+  Rules baked into this skeleton:
+  - One self-contained file. Images are base64 data-URIs (no hotlinks, no local
+    paths). Resize/compress before inlining (~1000-1200px wide, JPEG q~70-80).
+  - Light + dark mode. Tokens live in :root (light) and the dark blocks below.
+    Default follows the OS via prefers-color-scheme; the header toggle overrides
+    and persists to localStorage. Design a GENUINE dark palette, not an inversion.
+  - The MAP block is CONDITIONAL: render it ONLY if items have locations/
+    addresses. Delete the whole <section id="map"> otherwise.
+  - HTML derives from report.md. If you need a field report.md lacks, add it to
+    report.md first; never invent data only in the HTML layer.
+  - Criteria tiles use the SAME labels on every card, derived from the query's
+    stated requirements. Do not let labels drift card-to-card.
+
+  LINK / PILL CONVENTION (apply everywhere — see HTML_REPORT.md):
+  - Accent color + hover underline  = an interactive link.
+  - ...plus a trailing ↗ (class "ext" or .button) = it LEAVES the page (external).
+  - Muted, squared, dashed border, default cursor = a STATIC label (not a link):
+    the .criteria requirement pills and the .check tile labels. These must never
+    look like the accent pill buttons.
+-->
+<title><!-- TITLE: the research question --></title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS — override per report using frontend-design.
+     LIGHT is the :root default; DARK overrides follow. Neutral.
+     ============================================================ */
+  :root {
+    --paper:   #f4f5f4;   /* page background        */
+    --card:    #ffffff;   /* card / surface         */
+    --ink:     #1b2024;   /* primary text           */
+    --muted:   #5c666d;   /* secondary text         */
+    --line:    #e2e6e6;   /* hairlines / borders    */
+    --accent:  #176b6b;   /* primary accent (teal)  */
+    --accent2: #8a5a2b;   /* secondary marker hue   */
+    --tile:    #eef2f1;   /* criteria-tile surface  */
+    --caveat-bg:#fbf3e6;  /* caveat surface         */
+    --caveat-ink:#7a4a14;
+    --btn-ink: #ffffff;   /* text on a filled accent button */
+
+    /* Header is tokenized so it works in both modes. */
+    --header-bg: #1b2024;
+    --header-ink: #ffffff;
+    --header-sub: #d7dcdc;
+    --header-line: rgba(255,255,255,0.28);
+    --shadow: rgba(0,0,0,0.08);
+
+    /* Type roles — SYSTEM stacks only (no web fonts: the file must open
+       with zero network dependencies). Carry personality via scale/weight/
+       case/color, or override with other system stacks per report. */
+    --display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    /* Spacing rhythm (8px base) */
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+    --maxw: 1080px;
+    color-scheme: light;
+  }
+
+  /* DARK TOKENS — a genuine dark palette, NOT an inversion. Tune per report
+     with frontend-design. Applied two ways:
+       1. system preference, unless the reader forced light;
+       2. explicit data-theme="dark" from the toggle. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:   #14181a;
+      --card:    #1c2226;
+      --ink:     #e9eeed;
+      --muted:   #93a0a1;
+      --line:    #2c3439;
+      --accent:  #4fb6ad;
+      --accent2: #cf9d6b;
+      --tile:    #222a2e;
+      --caveat-bg:#2a2620;
+      --caveat-ink:#e6bd82;
+      --btn-ink: #0e1416;
+      --header-bg: #0e1214;
+      --header-ink: #f0f4f3;
+      --header-sub: #aab6b6;
+      --header-line: rgba(255,255,255,0.22);
+      --shadow: rgba(0,0,0,0.5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:   #14181a;
+    --card:    #1c2226;
+    --ink:     #e9eeed;
+    --muted:   #93a0a1;
+    --line:    #2c3439;
+    --accent:  #4fb6ad;
+    --accent2: #cf9d6b;
+    --tile:    #222a2e;
+    --caveat-bg:#2a2620;
+    --caveat-ink:#e6bd82;
+    --btn-ink: #0e1416;
+    --header-bg: #0e1214;
+    --header-ink: #f0f4f3;
+    --header-sub: #aab6b6;
+    --header-line: rgba(255,255,255,0.22);
+    --shadow: rgba(0,0,0,0.5);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; max-width: 100%; overflow-x: hidden; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Fluid container — NO fixed device width. */
+  .wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+
+  /* ============================================================
+     LINK / PILL CONVENTION — one treatment, applied everywhere.
+     accent + hover underline = link · + ↗ = external · muted
+     squared dashed = static label (NOT a link).
+     ============================================================ */
+  a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a.ext::after { content: " \2197"; font-weight: 700; font-size: 0.85em; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  /* The canonical "open an external thing" control. */
+  .button { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--accent);
+    border-radius: 999px; padding: 7px 14px; font-size: 0.85rem; background: transparent;
+    color: var(--accent); font-weight: 600; line-height: 1.1; }
+  .button::after { content: "\2197"; font-weight: 700; font-size: 0.92em; }
+  .button:hover { background: var(--accent); color: var(--btn-ink); text-decoration: none; }
+
+  /* Static label pills — squared + dashed + muted + default cursor so they can
+     never be mistaken for the accent link-buttons above. */
+  .tag { display: inline-block; font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.06em; padding: 5px 10px; border: 1px dashed var(--line); border-radius: 6px;
+    color: var(--muted); cursor: default; background: transparent; }
+
+  /* ---- Theme toggle (segmented control, header) ---- */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: var(--s4);
+    flex-wrap: wrap; margin-bottom: clamp(20px, 4vw, 36px); }
+  .brandmark { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--header-sub); }
+  .theme-toggle { display: inline-flex; border: 1px solid var(--header-line); border-radius: 999px; padding: 2px;
+    background: rgba(255,255,255,0.04); }
+  .theme-toggle button { appearance: none; border: 0; background: transparent; cursor: pointer;
+    font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--header-sub); padding: 5px 11px; border-radius: 999px; line-height: 1; }
+  .theme-toggle button[aria-pressed="true"] { background: var(--header-ink); color: var(--header-bg); font-weight: 700; }
+
+  /* ---- Header ---- */
+  header { background: var(--header-bg); color: var(--header-ink); }
+  header .wrap { padding-top: clamp(20px, 4vw, 36px); padding-bottom: clamp(24px, 5vw, 48px); }
+  h1 { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em;
+       font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.04; margin: 0 0 var(--s3); }
+  .sub { color: var(--header-sub); max-width: 64ch; margin: 0 0 var(--s4); font-size: clamp(1rem, 1.6vw, 1.12rem); }
+
+  /* Criteria pills = the query's stated requirements. STATIC labels (not links):
+     squared + dashed, header-tinted variant of .tag. */
+  .criteria { display: flex; flex-wrap: wrap; gap: var(--s2); list-style: none; padding: 0; margin: 0; }
+  .criteria li { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.06em; padding: 5px 10px; border: 1px dashed var(--header-line);
+    border-radius: 6px; color: var(--header-ink); cursor: default; }
+
+  /* ---- Section headings ---- */
+  section { margin: clamp(32px, 6vw, 64px) 0; }
+  h2 { font-family: var(--display); font-weight: 700; letter-spacing: -0.01em;
+       font-size: clamp(1.35rem, 3vw, 2rem); margin: 0 0 var(--s5); }
+  .eyebrow { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--muted); display: block; margin-bottom: var(--s2); }
+
+  .note { background: var(--tile); border: 1px solid var(--line); border-radius: 14px;
+    padding: var(--s4) var(--s5); margin: 0 0 var(--s5); color: var(--ink); }
+
+  /* ---- Brief block (verbatim query — "what was asked") ---- */
+  #brief { margin-top: clamp(28px, 5vw, 48px); margin-bottom: clamp(28px, 5vw, 48px); }
+  /* one-sided accent border: square the accent (left) corners, NO border on the other
+     sides (would miter awkwardly against the 4px accent), use inset shadow for their hairline */
+  .brief-card { background: var(--tile); border-left: 4px solid var(--accent);
+    border-radius: 0 16px 16px 0; padding: var(--s5) clamp(20px, 4vw, 32px);
+    box-shadow: inset 0 1px 0 var(--line), inset -1px 0 0 var(--line), inset 0 -1px 0 var(--line); }
+  .brief-card .eyebrow { color: var(--accent); margin-bottom: var(--s3); }
+  .brief-card blockquote { margin: 0; font-family: var(--display); font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+    line-height: 1.45; color: var(--ink); }
+  .brief-card blockquote p { margin: 0 0 var(--s3); }
+  .brief-card blockquote p:last-child { margin-bottom: 0; }
+
+  /* ---- Index table (table of contents — terse, one row per result) ---- */
+  #index { margin-top: clamp(24px, 4vw, 40px); }
+  .index-wrap { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--card); }
+  .index-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  .index-table thead th { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--muted); text-align: left; padding: 12px var(--s4);
+    border-bottom: 1px solid var(--line); background: var(--tile); white-space: nowrap; }
+  .index-table td { padding: 12px var(--s4); border-bottom: 1px solid var(--line); vertical-align: top; }
+  .index-table tbody tr:last-child td { border-bottom: 0; }
+  .index-table tbody tr:hover { background: var(--tile); }
+  .index-table .ix-rank { font-family: var(--mono); font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .index-table .ix-name a { font-weight: 700; }
+  .index-table .ix-name .place { font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.04em; }
+  .index-note { font-size: 0.82rem; color: var(--muted); margin: var(--s3) 0 0; }
+
+  /* ---- Card grid (fluid, auto-fit) ---- */
+  .grid { display: grid; gap: clamp(16px, 3vw, 28px);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    overflow: hidden; display: flex; flex-direction: column; min-width: 0;
+    transition: transform 0.18s ease, box-shadow 0.18s ease; scroll-margin-top: 16px; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px var(--shadow); }
+  .card .photo { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; background: var(--line); }
+  .card .body { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s3); flex: 1; }
+
+  /* Featured top pick spans full width on wide screens. */
+  @media (min-width: 760px) {
+    .grid.top .card.featured { grid-column: 1 / -1; flex-direction: row; }
+    .grid.top .card.featured .photo { width: 46%; aspect-ratio: auto; min-height: 320px; }
+    .grid.top .card.featured .body { width: 54%; }
+  }
+
+  /* Rank waypoint marker — doubles as the map-legend key. */
+  .titleline { display: flex; align-items: flex-start; gap: var(--s3); }
+  .rank { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 8px;
+    background: var(--accent); color: var(--btn-ink); font-family: var(--mono); font-weight: 700;
+    font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; }
+  .card.near .rank { background: var(--accent2); }
+  h3 { font-family: var(--display); font-weight: 700; font-size: 1.2rem; margin: 0; line-height: 1.2; }
+
+  .meta { font-family: var(--mono); font-size: 0.74rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.04em; margin: 0; }
+  .why { font-weight: 600; margin: 0; }
+
+  /* Criteria tiles — SAME labels on every card. STATIC (not links). */
+  .checks { display: grid; gap: var(--s2); grid-template-columns: 1fr; margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 520px) { .checks { grid-template-columns: 1fr 1fr; } }
+  .check { border: 1px solid var(--line); border-radius: 12px; padding: var(--s3); background: var(--tile); }
+  .check .label { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--muted); display: block; margin-bottom: 2px; font-weight: 700; }
+
+  .caveat { background: var(--caveat-bg); color: var(--caveat-ink); border: 1px solid var(--line);
+    border-radius: 12px; padding: var(--s3); font-size: 0.92rem; margin: 0; }
+  .caveat .label { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase;
+    letter-spacing: 0.07em; font-weight: 700; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: auto; }
+
+  /* ---- Map (CONDITIONAL — only if items have locations) ---- */
+  .map-card { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--card); }
+  .map-svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: var(--s4); margin: var(--s4) 0 0; padding: 0; list-style: none;
+    font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+  .legend li { display: flex; align-items: center; gap: var(--s2); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .dot.top { background: var(--accent); }
+  .dot.near { background: var(--accent2); }
+  .map-links { font-size: 0.9rem; color: var(--muted); margin: var(--s3) 0 0; }
+
+  /* ---- Appendices (default OPEN — polished to match the report) ---- */
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 0; margin: 0 0 var(--s4); overflow: hidden; }
+  summary { cursor: pointer; font-weight: 700; font-family: var(--display); font-size: 1.05rem;
+    padding: var(--s4) var(--s5); list-style: none; display: flex; align-items: center; gap: var(--s3); }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "\2212"; font-family: var(--mono); color: var(--accent); font-size: 1.1rem; width: 1ch; }
+  details:not([open]) summary::before { content: "+"; }
+  summary:hover { color: var(--accent); }
+  .details-body { padding: 0 var(--s5) var(--s5); }
+  .details-body > :first-child { margin-top: 0; }
+  .details-body p { color: var(--muted); margin: 0 0 var(--s4); max-width: 70ch; }
+  table { width: 100%; border-collapse: collapse; margin-top: var(--s2); font-size: 0.9rem; }
+  th, td { border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; padding: 10px var(--s3); }
+  th { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-family: var(--mono); text-align: right; white-space: nowrap; color: var(--ink); }
+  .next-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
+  .next-steps li { display: flex; gap: var(--s3); align-items: flex-start; }
+  .next-steps li::before { content: "\2192"; font-family: var(--mono); color: var(--accent); font-weight: 700; flex: 0 0 auto; }
+
+  footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; }
+  footer .wrap { padding-top: var(--s5); padding-bottom: var(--s6); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+<script>
+  /* Restore the saved theme BEFORE first paint to avoid a flash. */
+  try { var t = localStorage.getItem('sr-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header>
+  <div class="wrap">
+    <!-- Top bar: provenance + light/system/dark toggle. -->
+    <div class="topbar">
+      <span class="brandmark">Social-research report</span>
+      <div class="theme-toggle" role="group" aria-label="Colour theme">
+        <button type="button" data-theme="light">Light</button>
+        <button type="button" data-theme="system">System</button>
+        <button type="button" data-theme="dark">Dark</button>
+      </div>
+    </div>
+    <h1><!-- TITLE: the research question --></h1>
+    <p class="sub"><!-- One-line framing of what was optimized for. --></p>
+    <!-- Criteria pills = the query's stated requirements (STATIC labels, drive the tile labels below too). -->
+    <ul class="criteria">
+      <li><!-- requirement 1 --></li>
+      <li><!-- requirement 2 --></li>
+      <!-- ... -->
+    </ul>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============================= BRIEF =============================
+       The user's EXACT research query, verbatim (do NOT paraphrase). This
+       is the "what was asked" reminder; the results below answer it. -->
+  <section id="brief" aria-labelledby="brief-h">
+    <h2 id="brief-h" class="visually-hidden" hidden>The brief</h2>
+    <div class="brief-card">
+      <span class="eyebrow">The brief — what was asked, verbatim</span>
+      <blockquote>
+        <p><!-- PASTE THE USER'S EXACT QUERY HERE. Verbatim. One <p> per paragraph. --></p>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ============================= INDEX =============================
+       Table of CONTENTS, not a summary. ONE terse row per result, only the
+       3-5 key DECISION variables for this topic (price / rating / distance /
+       standout — pick what actually decides it). Each name links to its card.
+       See HTML_REPORT.md for how to choose the columns. -->
+  <section id="index" aria-labelledby="index-h">
+    <h2 id="index-h"><span class="eyebrow">At a glance</span>The shortlist</h2>
+    <div class="index-wrap">
+      <table class="index-table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Result</th>
+            <th scope="col"><!-- Decision col 1 --></th>
+            <th scope="col"><!-- Decision col 2 --></th>
+            <th scope="col"><!-- Decision col 3 --></th>
+            <th scope="col">Standout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- One row per top pick; name links to its card anchor (#pick-1 ...). -->
+          <tr>
+            <td class="ix-rank">1</td>
+            <td class="ix-name"><a href="#pick-1">Example Place</a><br><span class="place">Region</span></td>
+            <td><!-- value --></td>
+            <td><!-- value --></td>
+            <td><!-- value --></td>
+            <td><!-- one-phrase standout --></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="index-note">Tap a name to jump to its full card below.</p>
+  </section>
+
+  <!-- Optional method note. Delete if not needed. -->
+  <p class="note"><!-- How the shortlist was chosen / any method caveat. --></p>
+
+  <!-- ========================== TOP_PICKS ========================== -->
+  <section id="top-picks" aria-labelledby="top-picks-h">
+    <h2 id="top-picks-h"><span class="eyebrow">Shortlist</span>Top picks</h2>
+    <div class="grid top">
+
+      <!-- ---------- WORKED EXAMPLE CARD (first = featured) ----------
+           Duplicate per pick. First card carries class "featured".
+           id="pick-N" is the anchor the index table links to.
+           Criteria tiles use the SAME four labels on every card. -->
+      <article class="card featured" id="pick-1">
+        <!-- Base64 image: src="data:image/jpeg;base64,...." Always set meaningful alt. -->
+        <img class="photo" src="data:image/jpeg;base64,REPLACE_WITH_BASE64" alt="DESCRIBE THE PLACE">
+        <div class="body">
+          <div class="titleline">
+            <span class="rank" aria-label="Pick number 1">1</span>
+            <div>
+              <h3>Example Place — Region</h3>
+              <p class="meta">Town · ~2h away · short descriptor</p>
+            </div>
+          </div>
+          <p class="why">One sentence on why this is the strongest pick.</p>
+          <ul class="checks">
+            <li class="check"><span class="label">Criterion A</span>Evidence against requirement A.</li>
+            <li class="check"><span class="label">Criterion B</span>Evidence against requirement B.</li>
+            <li class="check"><span class="label">Criterion C</span>Evidence against requirement C.</li>
+            <li class="check"><span class="label">Criterion D</span>Evidence against requirement D.</li>
+          </ul>
+          <p class="caveat"><span class="label">Watch-out</span> Honest caveat or limitation.</p>
+          <div class="actions">
+            <a class="button" href="https://example.com">Visit site</a>
+            <a class="button" href="https://example.com/menu">Details</a>
+          </div>
+        </div>
+      </article>
+      <!-- ---------- /WORKED EXAMPLE CARD ---------- -->
+
+    </div>
+  </section>
+
+  <!-- ========================= NEAR_MISSES ========================= -->
+  <section id="near-misses" aria-labelledby="near-misses-h">
+    <h2 id="near-misses-h"><span class="eyebrow">Considered</span>Near misses</h2>
+    <div class="grid">
+      <!-- Lighter card: photo, rank letter, why, miss-reason caveat, action. No tiles needed. -->
+      <article class="card near" id="near-a">
+        <img class="photo" src="data:image/jpeg;base64,REPLACE_WITH_BASE64" alt="DESCRIBE THE PLACE">
+        <div class="body">
+          <div class="titleline">
+            <span class="rank" aria-label="Near miss A">A</span>
+            <div><h3>Example Near Miss — Region</h3></div>
+          </div>
+          <p class="why">What it does well.</p>
+          <p class="caveat"><span class="label">Miss reason</span> Why it dropped off the shortlist.</p>
+          <div class="actions"><a class="button" href="https://example.com">Visit site</a></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== MAP (CONDITIONAL) =======================
+       Render this whole section ONLY if items have locations/addresses.
+       Otherwise DELETE it. Basic schematic + legend for now (a richer map
+       is a separate roadmap item). Top picks use numbered markers matching
+       the rank waypoints above; near-misses use the secondary hue. -->
+  <section id="map" aria-labelledby="map-h">
+    <h2 id="map-h"><span class="eyebrow">Where</span>Map</h2>
+    <div class="map-card">
+      <svg class="map-svg" viewBox="0 0 800 480" role="img"
+           aria-label="Schematic map showing the approximate position of each shortlisted place. Exact map links are listed below.">
+        <rect width="800" height="480" fill="var(--tile)"></rect>
+        <!-- Schematic region outline + numbered markers go here.
+             Numbered circles for top picks, smaller markers for near-misses.
+             Keep it schematic; do not fake precise coordinates. -->
+      </svg>
+    </div>
+    <ul class="legend">
+      <li><span class="dot top"></span> Top picks</li>
+      <li><span class="dot near"></span> Near misses</li>
+    </ul>
+    <p class="map-links">Exact locations:
+      <a class="ext" href="https://www.google.com/maps/search/?api=1&amp;query=PLACE">Example Place</a>
+      <!-- · one map link per located item -->
+    </p>
+  </section>
+
+  <!-- ======================== APPENDICES ==========================
+       Appendices default OPEN (<details open>). -->
+  <section id="appendices" aria-labelledby="appendices-h">
+    <h2 id="appendices-h">Appendices</h2>
+
+    <!-- APPENDIX_A: searches — itemize the runs and source counts (from run dirs). -->
+    <details open>
+      <summary>Appendix A — what was searched, and source counts</summary>
+      <div class="details-body">
+        <p>One line on how these sources were combined into the shortlist.</p>
+        <table>
+          <thead><tr><th scope="col">Source / run</th><th scope="col">Results</th><th scope="col">How it was used</th></tr></thead>
+          <tbody>
+            <tr><td>Example run query</td><td class="num">20</td><td>What it surfaced and how it was used.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- APPENDIX_B: next steps — recommended actions to improve / verify. -->
+    <details open>
+      <summary>Appendix B — recommended next steps</summary>
+      <div class="details-body">
+        <ul class="next-steps">
+          <li>Concrete next action to verify or improve the shortlist.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<!-- ============================ FOOTER ============================
+     Neutral only. No agent names, no personal hosts, no usernames. -->
+<footer>
+  <div class="wrap">
+    Prepared with the social-research skill · <!-- month year --> · Photos sourced from each venue's official pages.
+  </div>
+</footer>
+
+<script>
+  /* Theme toggle: light / system / dark, persisted to localStorage.
+     "system" clears the override so prefers-color-scheme decides. */
+  (function () {
+    var KEY = 'sr-theme', root = document.documentElement;
+    function apply(t) {
+      if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
+      else { root.removeAttribute('data-theme'); t = 'system'; }
+      var btns = document.querySelectorAll('.theme-toggle button');
+      for (var i = 0; i < btns.length; i++)
+        btns[i].setAttribute('aria-pressed', btns[i].dataset.theme === t ? 'true' : 'false');
+    }
+    var saved = null; try { saved = localStorage.getItem(KEY); } catch (e) {}
+    apply(saved || 'system');
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.theme-toggle button') : null;
+      if (!b) return;
+      var t = b.dataset.theme;
+      try { localStorage.setItem(KEY, t); } catch (e) {}
+      apply(t);
+    });
+  })();
+</script>
+
+</body>
+</html>

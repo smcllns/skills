@@ -80,6 +80,8 @@ Use `report.md` as the user-facing artifact. It contains:
 
 Use `normalized.json` when another tool needs structured evidence. Use `raw/*.json` when debugging a source or verifying provenance.
 
+For an optional shareable single-file HTML version of a finished search, see [HTML_REPORT.md](HTML_REPORT.md).
+
 ## V1 Boundaries
 
 Do not add these to v1:
@@ -90,7 +92,5 @@ Do not add these to v1:
 - browser cookie or keychain extraction
 - internal LLM planning/reranking
 - quality-nudge UI
-
-HTML reports are coming in v1.1.
 
 Future sources to consider after v1 proves useful: Perplexity, Product Hunt, Wirecutter/NYT Article Search, CNET, PCMag, The Verge, Consumer Reports, G2, Capterra, Trustpilot, Amazon reviews, app store reviews, Steam, Chrome Web Store, GitHub Discussions, Discord exports, Bluesky, Mastodon, LinkedIn, Substack, Medium, podcasts/transcripts, and RSS feeds.
