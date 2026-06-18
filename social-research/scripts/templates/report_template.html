@@ -267,9 +267,22 @@
 
   .actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: auto; }
 
-  /* ---- Map (CONDITIONAL — only if items have locations) ---- */
+  /* ---- Map (CONDITIONAL — only if items have locations) ----
+     Two base64 Geoapify static maps are baked in (positron for light,
+     dark-matter for dark); CSS shows the one matching the active theme so the
+     map stays correct through the light/system/dark toggle, fully offline. */
   .map-card { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--card); }
-  .map-svg { width: 100%; height: auto; display: block; }
+  .map-img { width: 100%; height: auto; display: block; }
+  .map-img.dark { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .map-img.light { display: none; }
+    :root:not([data-theme="light"]) .map-img.dark { display: block; }
+  }
+  :root[data-theme="dark"] .map-img.light { display: none; }
+  :root[data-theme="dark"] .map-img.dark { display: block; }
+  /* Required attribution caption — OSM data + Geoapify render. Never strip it. */
+  .map-attrib { font-family: var(--mono); font-size: 0.68rem; color: var(--muted);
+    margin: var(--s2) 0 0; }
   .legend { display: flex; flex-wrap: wrap; gap: var(--s4); margin: var(--s4) 0 0; padding: 0; list-style: none;
     font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
   .legend li { display: flex; align-items: center; gap: var(--s2); }
@@ -451,24 +464,35 @@
 
   <!-- ===================== MAP (CONDITIONAL) =======================
        Render this whole section ONLY if items have locations/addresses.
-       Otherwise DELETE it. Basic schematic + legend for now (a richer map
-       is a separate roadmap item). Top picks use numbered markers matching
-       the rank waypoints above; near-misses use the secondary hue. -->
+       Otherwise DELETE it entirely (a keyboards report has no map).
+
+       REAL MAP (preferred): run scripts/build_map.py over the located items to
+       geocode them and render two Geoapify static maps (positron=light,
+       dark-matter=dark, retina @2x, numbered/lettered markers auto-fit to the
+       bounding box). Paste the returned base64 data-URIs into the two <img>
+       below. Markers match the rank waypoints on the cards (1..N top picks,
+       A..D near misses). See HTML_REPORT.md for the recipe.
+
+       NO-KEY / FALLBACK: if GEOAPIFY_API_KEY is absent, or build_map.py returns
+       {"fallback": true} (geocode/render failed), DELETE the .map-card block and
+       keep only the legend + the ordered .map-links list of exact map links.
+       Never invent coordinates or hand-draw a schematic. -->
   <section id="map" aria-labelledby="map-h">
     <h2 id="map-h"><span class="eyebrow">Where</span>Map</h2>
+    <!-- REAL MAP: delete this .map-card entirely in the fallback case. -->
     <div class="map-card">
-      <svg class="map-svg" viewBox="0 0 800 480" role="img"
-           aria-label="Schematic map showing the approximate position of each shortlisted place. Exact map links are listed below.">
-        <rect width="800" height="480" fill="var(--tile)"></rect>
-        <!-- Schematic region outline + numbered markers go here.
-             Numbered circles for top picks, smaller markers for near-misses.
-             Keep it schematic; do not fake precise coordinates. -->
-      </svg>
+      <img class="map-img light" src="data:image/jpeg;base64,REPLACE_WITH_LIGHT_MAP_BASE64"
+           alt="Map of the shortlisted places, numbered to match the picks above.">
+      <img class="map-img dark" src="data:image/jpeg;base64,REPLACE_WITH_DARK_MAP_BASE64"
+           alt="" aria-hidden="true">
     </div>
+    <!-- Required attribution — paste build_map.py's attribution_html. Never strip it. -->
+    <p class="map-attrib">© <a class="ext" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · Powered by <a class="ext" href="https://www.geoapify.com/">Geoapify</a></p>
     <ul class="legend">
-      <li><span class="dot top"></span> Top picks</li>
-      <li><span class="dot near"></span> Near misses</li>
+      <li><span class="dot top"></span> Top picks (1–N)</li>
+      <li><span class="dot near"></span> Near misses (A–D)</li>
     </ul>
+    <!-- Always keep this list: it is both a convenience and the no-key fallback. -->
     <p class="map-links">Exact locations:
       <a class="ext" href="https://www.google.com/maps/search/?api=1&amp;query=PLACE">Example Place</a>
       <!-- · one map link per located item -->

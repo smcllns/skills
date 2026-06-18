@@ -32,6 +32,13 @@ def get_json(url: str, *, headers: dict[str, str] | None = None, timeout: int = 
         return json.loads(response.read().decode("utf-8"))
 
 
+def get_bytes(url: str, *, headers: dict[str, str] | None = None, timeout: int = 30) -> bytes:
+    ensure_ssl_cert_file()
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read()
+
+
 def get_text(url: str, *, headers: dict[str, str] | None = None, timeout: int = 20) -> str:
     ensure_ssl_cert_file()
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})

@@ -685,5 +685,141 @@ class RedditAdapterTests(unittest.TestCase):
         self.assertEqual(_reddit_time_bucket(90), "year")
 
 
+class BuildMapTests(unittest.TestCase):
+    def setUp(self) -> None:
+        import build_map
+
+        self.build_map = build_map
+
+    def test_returns_none_without_api_key(self) -> None:
+        place = self.build_map.MapPlace(name="Tillingham", query="Tillingham, Peasmarsh, UK", rank="1")
+        self.assertIsNone(self.build_map.build_map([place], api_key=None))
+
+    def test_view_params_use_padded_bbox_for_multiple_points(self) -> None:
+        points = [
+            {"lon": 0.0, "lat": 50.0},
+            {"lon": 1.0, "lat": 51.0},
+        ]
+        view = self.build_map._view_params(points)
+        self.assertEqual(len(view), 1)
+        self.assertTrue(view[0].startswith("area=rect:"))
+        nums = [float(n) for n in view[0].split("rect:")[1].split(",")]
+        self.assertLess(nums[0], 0.0)  # min lon padded outward
+        self.assertGreater(nums[2], 1.0)  # max lon padded outward
+
+    def test_view_params_center_for_single_point(self) -> None:
+        view = self.build_map._view_params([{"lon": -0.1, "lat": 51.5}])
+        self.assertEqual(view, ["center=lonlat:-0.1,51.5", "zoom=11"])
+
+    def test_marker_encodes_color_and_label(self) -> None:
+        point = {"lon": -0.1, "lat": 51.5, "rank": "1"}
+        marker = self.build_map._marker(point, "#1f63e6")
+        self.assertIn("lonlat:-0.1,51.5", marker)
+        self.assertIn("color:%231f63e6", marker)
+        self.assertIn("text:1", marker)
+        self.assertIn("type:material", marker)
+
+    def test_static_map_url_has_required_params(self) -> None:
+        url = self.build_map._static_map_url(
+            "secret-key", "positron", 760, 480, 2, "png", ["area=rect:0,0,1,1"], ["lonlat:0,0;type:material"]
+        )
+        self.assertTrue(url.startswith("https://maps.geoapify.com/v1/staticmap?"))
+        self.assertIn("style=positron", url)
+        self.assertIn("scaleFactor=2", url)
+        self.assertIn("marker=lonlat:0,0;type:material", url)
+        self.assertIn("apiKey=secret-key", url)
+
+    def test_static_map_url_joins_multiple_markers_into_one_param(self) -> None:
+        # Geoapify wants ONE pipe-separated marker param, not repeated params.
+        url = self.build_map._static_map_url(
+            "k", "positron", 760, 480, 2, "jpeg", ["area=rect:0,0,1,1"],
+            ["lonlat:0,0;text:1", "lonlat:1,1;text:2"],
+        )
+        self.assertEqual(url.count("marker="), 1)
+        self.assertIn("marker=lonlat:0,0;text:1|lonlat:1,1;text:2", url)
+
+    def test_build_map_geocodes_and_returns_data_uris(self) -> None:
+        bm = self.build_map
+        place_top = bm.MapPlace(name="A", query="A, UK", rank="1", kind="top")
+        place_near = bm.MapPlace(name="B", query="B, UK", rank="A", kind="near")
+
+        def fake_get_json(url, *, headers=None, timeout=20):
+            lat = 51.0 if "A%2C" in url or "A," in url else 52.0
+            return {"results": [{"lat": lat, "lon": 0.5, "formatted": "addr"}]}
+
+        captured_urls: list[str] = []
+
+        def fake_get_bytes(url, *, headers=None, timeout=30):
+            captured_urls.append(url)
+            return b"\x89PNG\r\n\x1a\nfake"
+
+        with (
+            patch("build_map.get_json", side_effect=fake_get_json),
+            patch("build_map.get_bytes", side_effect=fake_get_bytes),
+        ):
+            result = bm.build_map([place_top, place_near], api_key="k")
+
+        self.assertIsNotNone(result)
+        self.assertTrue(result.light_data_uri.startswith("data:image/jpeg;base64,"))
+        self.assertTrue(result.dark_data_uri.startswith("data:image/jpeg;base64,"))
+        self.assertEqual(len(result.located), 2)
+        self.assertEqual(result.missing, [])
+        self.assertIn("OpenStreetMap", result.attribution_text)
+        self.assertIn("Geoapify", result.attribution_text)
+        self.assertIn("style=positron", captured_urls[0])
+        self.assertIn("style=dark-matter", captured_urls[1])
+
+    def test_supplied_coordinates_skip_geocoding(self) -> None:
+        bm = self.build_map
+        place = bm.MapPlace(name="A", query="A Hotel, AB1 2CD, UK", rank="1", lat=51.5, lon=-0.1)
+
+        def boom(*a, **k):
+            raise AssertionError("geocoding API must not be called when coords are supplied")
+
+        with (
+            patch("build_map.get_json", side_effect=boom),
+            patch("build_map.get_bytes", return_value=b"fake"),
+        ):
+            result = bm.build_map([place], api_key="k")
+
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result.located), 1)
+        self.assertEqual(result.located[0]["lat"], 51.5)
+        self.assertEqual(result.located[0]["lon"], -0.1)
+        self.assertEqual(result.located[0]["source"], "provided")
+
+    def test_no_match_omits_pin_and_records_missing(self) -> None:
+        bm = self.build_map
+        place = bm.MapPlace(name="Nowhere", query="zzz nowhere", rank="1")
+
+        with patch("build_map.get_json", return_value={"results": []}):
+            result = bm.build_map([place], api_key="k")
+
+        # all places failed to geocode -> fallback
+        self.assertIsNone(result)
+
+    def test_geocode_cache_round_trips(self) -> None:
+        bm = self.build_map
+        with tempfile.TemporaryDirectory() as tmp:
+            cache_dir = Path(tmp)
+            calls: list[str] = []
+
+            def fake_get_json(url, *, headers=None, timeout=20):
+                calls.append(url)
+                return {"results": [{"lat": 51.0, "lon": 0.5, "formatted": "addr"}]}
+
+            with (
+                patch("build_map.get_json", side_effect=fake_get_json),
+                patch("build_map.get_bytes", return_value=b"img"),
+            ):
+                place = bm.MapPlace(name="A", query="A, UK", rank="1")
+                bm.build_map([place], api_key="k", cache_dir=cache_dir)
+                self.assertTrue((cache_dir / "geocode_cache.json").exists())
+                # second run should hit the cache, not re-geocode
+                bm.build_map([place], api_key="k", cache_dir=cache_dir)
+
+        self.assertEqual(len(calls), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

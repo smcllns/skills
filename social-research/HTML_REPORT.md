@@ -148,10 +148,44 @@ pills — that was the v1 confusion (some pills were links, some weren't).
 ### Map — conditional
 
 Render the `MAP` section **only if items have locations/addresses**; delete the
-whole `<section id="map">` otherwise (a keyboards report has no map). When shown:
-a basic schematic with a **legend** (top picks vs near misses) and a fallback
-list of exact map links. Keep it schematic — don't fabricate precise
-coordinates. (A richer map is a separate roadmap item.)
+whole `<section id="map">` otherwise (a keyboards report has no map).
+
+**Real map (preferred — needs `GEOAPIFY_API_KEY`).** Bake in two Geoapify static
+maps (one per theme) as base64, so the report stays a single offline file:
+
+1. Build the place list from the located items — one entry per pick:
+   `{name, query, rank, kind}` where `query` is the geocoding string, `rank` is
+   the marker label (`1`..`N` for top picks, `A`..`D` for near misses), `kind` is
+   `top` or `near`.
+   - **Get the address from the result's own page — don't geocode a bare name.**
+     When you fetch each result's official site for its photo, lift its **official
+     postal address (with postcode)** from the same page and use that as `query`.
+     Ambiguous names ("The Harper") mis-resolve to the wrong town; a full
+     address+postcode geocodes accurately.
+   - **Even better, pass coordinates directly.** If the page exposes lat/lng
+     (schema.org `LocalBusiness`/`geo` JSON-LD, or a Google-Maps embed), add
+     `lat`/`lon` to the entry. `build_map.py` then **skips geocoding entirely** for
+     that pin — zero geocoding error. Only fall back to name-only `query` when the
+     page gives neither.
+2. Run the helper (writes `light.<fmt>`/`dark.<fmt>` for inspection + `map.json`; default `fmt` is `jpeg`):
+   ```bash
+   python3 scripts/build_map.py --places-file places.json \
+     --cache-dir ~/.social-research/searches/<run-dir> --out-dir /tmp/map
+   ```
+   It geocodes each place (Geoapify, cached in the run dir, **fails loud** on a
+   no-match — that place keeps its map link but gets no pin), then renders
+   **positron** (light) + **dark-matter** (dark) static maps at `scaleFactor=2`
+   with numbered/lettered markers auto-fit to the bounding box.
+3. Paste `map.json`'s `light_data_uri` and `dark_data_uri` into the two
+   `<img class="map-img light/dark">` `src`s, and its `attribution_html` into the
+   `.map-attrib` caption. CSS swaps the image with the active theme. Keep the
+   **legend** (top picks 1–N vs near misses A–D) and the `.map-links` list.
+
+**Attribution is required** — render the OSM + Geoapify caption; never strip it.
+
+**Fallback (no key, or `build_map.py` prints `{"fallback": true}`).** Delete the
+`.map-card` block and keep only the **legend** + the ordered **`.map-links`** list
+of exact map links. Never fabricate coordinates or hand-draw a schematic.
 
 ## Derive from `report.md` — add fields there first
 
@@ -188,5 +222,7 @@ public. A neutral provenance line (skill name, month/year, photo source) only.
 - **Light and dark** both legible (toggle works, persists, system default works).
 - **Links consistent**: external = accent + ↗; static pills = muted/squared, no ↗.
 - **Appendices open** and polished.
-- Map shows with a legend **iff** items have locations.
+- Map shows with a legend **iff** items have locations; with a key the baked-in
+  Geoapify image renders in **both** themes offline and shows the OSM + Geoapify
+  attribution; with no key it degrades to the legend + map-links list.
 - Footer is neutral; no personal info anywhere.
