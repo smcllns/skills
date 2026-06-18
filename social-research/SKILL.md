@@ -64,6 +64,7 @@ Credential names:
 - Web: one of `BRAVE_API_KEY`, `SERPER_API_KEY`, `EXA_API_KEY`, or `PARALLEL_API_KEY`.
 - TikTok, Instagram, Threads, Pinterest: `SCRAPECREATORS_API_KEY`.
 - YouTube: local `yt-dlp` executable.
+- Optional HTML-report map: `GEOAPIFY_API_KEY` (used only by `scripts/build_map.py`, not the core search; the report falls back to a location list + links without it). See [HTML_REPORT.md](HTML_REPORT.md).
 
 Reddit tries public JSON first, then uses `BRAVE_API_KEY` for Brave `site:reddit.com` discovery plus `old.reddit.com` HTML scraping when Reddit blocks JSON. Hacker News and Polymarket use public unauthenticated endpoints.
 

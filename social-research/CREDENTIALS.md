@@ -41,6 +41,12 @@ GitHub also accepts `gh auth token`, so a working authenticated `gh` CLI is enou
 | `threads` | `SCRAPECREATORS_API_KEY` | Uses ScrapeCreators. A successful call may still return zero posts for narrow local queries. |
 | `pinterest` | `SCRAPECREATORS_API_KEY` | Uses ScrapeCreators. |
 
+## Map (HTML report, optional)
+
+| Capability | Required setup | Notes |
+|---|---|---|
+| Report map | `GEOAPIFY_API_KEY` | Only used by the optional HTML report (`scripts/build_map.py`), not the core search. Geocodes the shortlisted places and renders two static maps (positron + dark-matter) baked into the report as base64. Free tier is **3,000 credits/day** — a report uses ~5–9 geocodes + 2 static maps, comfortably free. Get a key at [geoapify.com](https://www.geoapify.com/) (sign up → create a project → copy its API key). **Without the key the report still builds** — it falls back to the ordered location list + map links. The rendered map **requires attribution**: keep the "© OpenStreetMap contributors · Powered by Geoapify" caption; do not strip it. |
+
 ## Local Test Command
 
 ```bash

@@ -13,7 +13,7 @@ def load_config(path: Path = CREDENTIALS_PATH) -> dict[str, Any]:
     merged = _read_json_object(path)
 
     for key, value in os.environ.items():
-        if key.startswith(("SOCIAL_RESEARCH_", "SCRAPECREATORS_", "BRAVE_", "SERPER_", "EXA_", "PARALLEL_", "GITHUB_", "X_")):
+        if key.startswith(("SOCIAL_RESEARCH_", "SCRAPECREATORS_", "BRAVE_", "SERPER_", "EXA_", "PARALLEL_", "GITHUB_", "X_", "GEOAPIFY_")):
             merged[key] = value
     return merged
 
