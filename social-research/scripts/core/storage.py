@@ -34,6 +34,7 @@ class SearchStorage:
         raw_by_source: dict[str, Any],
         normalized: list[SourceItem],
         report: str,
+        usage: dict[str, Any] | None = None,
     ) -> None:
         _write_json(run_dir / "query.json", query)
         raw_dir = run_dir / "raw"
@@ -42,6 +43,8 @@ class SearchStorage:
             _write_json(raw_dir / f"{source}.json", payload)
         _write_json(run_dir / "normalized.json", {"items": [item.to_dict() for item in normalized]})
         (run_dir / "report.md").write_text(report)
+        if usage is not None:
+            _write_json(run_dir / "usage.json", usage)
 
 
 def slugify(value: str) -> str:

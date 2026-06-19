@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
+from core.calibrate import calibrate
 from core.config import load_config
 from core.models import SearchConfig, SourceItem, SourceResult
 from core.pipeline import run_search
@@ -14,13 +16,28 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run a saved social research search.")
     parser.add_argument("query", help="Search query/topic")
     parser.add_argument("--sources", help="Comma-separated source list")
-    parser.add_argument("--lookback-days", type=int, default=30)
+    parser.add_argument(
+        "--lookback-days",
+        type=int,
+        default=365,
+        help="Date window in days (default 365; evergreen topics want this wide — run --calibrate to pick it).",
+    )
     parser.add_argument("--limit", type=int, default=20)
     parser.add_argument("--output-root", type=Path, default=Path.home() / ".social-research" / "searches")
     parser.add_argument("--mock", action="store_true", help="Use a local mock source for smoke testing")
+    parser.add_argument(
+        "--calibrate",
+        action="store_true",
+        help="Preflight: probe result dates and recommend a --lookback-days, then exit without searching.",
+    )
     args = parser.parse_args()
 
     config_values = load_config()
+    if args.calibrate:
+        config = SearchConfig(query=args.query, config=config_values)
+        result = calibrate(args.query, config)
+        print(json.dumps(result.to_dict(), indent=2))
+        return 0
     sources = [part.strip().lower() for part in args.sources.split(",") if part.strip()] if args.sources else None
     adapters = default_adapters()
     if args.mock:

@@ -27,8 +27,16 @@ from pathlib import Path
 from typing import Any
 
 from core.config import load_config
+from core.usage import merge_run_calls
 
-from sources.http import get_bytes, get_json, with_query
+from sources.http import (
+    get_bytes,
+    get_json,
+    get_request_counts,
+    reset_request_counts,
+    set_current_source,
+    with_query,
+)
 
 
 GEOCODE_URL = "https://api.geoapify.com/v1/geocode/search"
@@ -348,19 +356,32 @@ def main(argv: list[str] | None = None) -> int:
     config = load_config()
     api_key = config.get("GEOAPIFY_API_KEY")
 
-    result = build_map(
-        places,
-        api_key=api_key,
-        cache_dir=args.cache_dir,
-        style_light=args.style_light,
-        style_dark=args.style_dark,
-        width=args.width,
-        height=args.height,
-        scale_factor=args.scale,
-        image_format=args.format,
-        top_color=args.top_color,
-        near_color=args.near_color,
-    )
+    # Count Geoapify calls (geocodes + 2 static maps) and fold them into the run's
+    # usage record so Appendix D prices the map layer too. build_map runs as its own
+    # process after the pipeline has written usage.json, so resetting the shared
+    # counter here is safe (it would clobber live pipeline counts if ever called
+    # in-process mid-run).
+    reset_request_counts()
+    set_current_source("geoapify")
+    try:
+        result = build_map(
+            places,
+            api_key=api_key,
+            cache_dir=args.cache_dir,
+            style_light=args.style_light,
+            style_dark=args.style_dark,
+            width=args.width,
+            height=args.height,
+            scale_factor=args.scale,
+            image_format=args.format,
+            top_color=args.top_color,
+            near_color=args.near_color,
+        )
+    finally:
+        set_current_source(None)
+    geoapify_calls = get_request_counts().get("geoapify", 0)
+    if args.cache_dir and geoapify_calls:
+        merge_run_calls(args.cache_dir, "geoapify", geoapify_calls)
 
     if result is None:
         print(json.dumps({"fallback": True}))

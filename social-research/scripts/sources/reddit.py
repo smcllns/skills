@@ -63,11 +63,15 @@ class RedditAdapter:
 
 
 def _reddit_time_bucket(days: int) -> str:
+    if days <= 0:
+        return "all"  # no window: widest Reddit bucket, don't re-narrow to a week
     if days <= 7:
         return "week"
     if days <= 31:
         return "month"
-    return "year"
+    if days <= 366:
+        return "year"
+    return "all"  # multi-year windows exceed Reddit's "year" bucket
 
 
 def _json_posts(data):
