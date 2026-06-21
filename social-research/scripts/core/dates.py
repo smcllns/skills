@@ -10,10 +10,16 @@ def utc_now() -> datetime:
 
 
 def lookback_window(days: int, now: datetime | None = None) -> LookbackWindow:
-    if days <= 0:
-        raise ValueError("lookback days must be positive")
+    if days < 0:
+        # Guard typos like `--lookback-days -30`; 0 is the explicit no-window opt-in.
+        raise ValueError("lookback days cannot be negative; use 0 for no window")
     current = now or utc_now()
     end = current.date()
+    if days == 0:
+        # No window: rank by relevance, keep ALL dated items including any
+        # future-dated ones (what --calibrate recommends for evergreen topics
+        # whose evidence spans years). Sentinels span the full date range.
+        return LookbackWindow(start="0001-01-01", end="9999-12-31")
     start = end - timedelta(days=days)
     return LookbackWindow(start=start.isoformat(), end=end.isoformat())
 

@@ -1,6 +1,6 @@
 ---
 name: path-to-goal
-description: A status update format for a goal-focused software-engineering culture of rapid, evidence-based technical decision-making. FKA unconfuse-me.
+description: Use to clarify decisions or provide status updates in a goal-focused culture of rapid, evidence-based technical and strategic decision-making. Alias unconfuse-me.
 ---
 
 # Path to goal
@@ -9,31 +9,40 @@ With ELI10 clarity, summarize:
 
 - goal, one sentence
 - current status, 1-3 need to know sentences
-- numbered path from start to goal with ✅ or ⬜
-- in a new section, decisions you need from me to move forward, with well-articulated decision question in bold (<90 char), one line subtitle of why it's important (prefix "Why: "), followed by a table of lettered options to enable shorthand responses like `1a 2c 3b` or `yyn`. Highlight your recommended options with `★`. 
+- in a new section, numbered path from start to goal with ✅ or ⬜, including each numbered decision in its step when it becomes blocking
+- in a new section, all the numbered decisions you need from me to move forward, as well-articulated one-line questions in bold followed by a table of lettered options to enable shorthand responses like `1a 2c 3b`. Highlight your recommended options with `★`. 
+- If there are no decisions to make, say so clearly.
+
+Remind user of shorthand options they can use:
+
+- `lgtm` accepts ★
+- `1a 2b 3b` to choose (exclude if single decision)
+- `1?` request more detail and confidence on decision 1 before deciding
 
 ## Readability
-  
-- Separate decisions with a blank line
-- Don't write "ELI10"
-- No other emojis
-- One liner items are < 88 chars
-- For table of options use ( | Option | Tradeoffs) and for each tradeoff, prefix a bolded colored text symbols `(+)` for beneficial, `(-)` for negative, `(+/-)` if both, and double up for XXL e.g. `(++)`. Negligible tradeoffs are not tradeoffs.
 
+- Never write "ELI10" but write all text in ELI10
+- One liner items are < 88 chars
+- Exempt from the char budgets are the anchor words required to correctly ask the decision to the user in the most effective way "Will I..." or "What is the next step for..." or "You need to decide on...".
+- Decisions are always numbered, preceded by a blank line, and followed by a <64 char ELI8 subtitle of why it's important (prefix " - Why: "), then an optional " - Link: " only when a canonical URL (a github.com PR) lets the user make the decision. 
+- For the table of options use ( # | Option | Tradeoffs) and for each tradeoff, prefix bolded symbols `(+)` for beneficial, `(-)` for negative, `(+/-)` if both good and bad, and increase count `(++)` sparingly only for notable differences (e.g. >1-2 orders of magnitude). Order a cell's tradeoffs descending, most positive `(++)` first down to most negative `(--)`.
+- Negligible tradeoffs are not listed. 
+- Differences in difficulty or effort for agent or wall clock time are out of scope as tradeoffs.
+- If an option includes "I" or "you" the decision question must make it clear that "you" refers to the user e.g. "I (agent) will..."
+- No other emojis or icons
 
 ## Shorthand responses
 
-If user responds `2?` it means "I can't decide on Decision 2 with this level of info. Follow up with further detail on the situation and tradeoffs for this decision."
+If user responds `q`, it means launch your tool for collecting user input, like `AskUserQuestion` or `request_user_input` or similar to collect  inputs to each of these decisions
 
-If user responds `3b?` it means "My gut sense is option B is best for Decision 3, but I don't have good enough information/data to be sure. Follow up with more detail on this decision and the tradeoffs with option B vs the other choices so I can confirm this choice."
+If user responds `1?` it means "I can't decide on Decision 2 with this level of info. Follow up with the next level of detail and 3x char budgets and revisit this decision singularly next." Do not consume chars on duplicative points, focus on providing the single best description of each point once. 
 
-If user responds `lgtm` it means "I accept all your recommendations"
+## Terminal separator
 
-If user responds `q`, it means launch your tool for collecting user input, like `AskUserQuestion` or `request_user_input` to collect  inputs to each of these decisions
+- If outputting in the terminal, start your response with this banner (copy the 100-char diamond row exactly — don't recount or regenerate it - we use a distinct technique to achieve a full width visual banner + centered title text), then a blank line, then the summary so it is easy to scroll and find the start of report if needed. Start your repsonse in terminal sessions with:
 
-End with a key of responses the user can provide:
-- `1a 2b 3b` to choose
-- `lgtm` accepts all ★
-- `1?` more detail on 1
-- `1b?` leaning 1B confirm after more info
-- `q` use Question tool (exclude this line if none)
+| PATH · TO · GOAL |
+|:-:|
+| ◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇ |
+
+**Goal:** ...

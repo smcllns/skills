@@ -23,6 +23,8 @@ Preferred order:
 2. Export short-lived environment variables for the command.
 3. As a local-only fallback, put secrets in `~/.social-research/credentials.local.json`.
 
+For real user-requested research, preflight credentials for the selected sources before running. Missing credentials are acceptable for `--mock` and local smoke tests; for decision-grade runs, fetch available keys first or explicitly record the blocked source before proceeding.
+
 GitHub also accepts `gh auth token`, so a working authenticated `gh` CLI is enough for that source.
 
 ## Sources
