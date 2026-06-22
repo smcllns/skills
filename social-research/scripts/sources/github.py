@@ -17,7 +17,7 @@ class GitHubAdapter:
         headers = {"Accept": "application/vnd.github+json"}
         if token:
             headers["Authorization"] = f"Bearer {token}"
-        url = with_query("https://api.github.com/search/issues", {"q": f"{query} created:>{window.start}", "sort": "reactions", "order": "desc", "per_page": config.limit})
+        url = with_query("https://api.github.com/search/issues", {"q": _issue_search_query(query, window), "sort": "reactions", "order": "desc", "per_page": config.limit})
         data = get_json(url, headers=headers)
         raws = []
         for item in data.get("items", []):
@@ -37,6 +37,12 @@ class GitHubAdapter:
                 }
             )
         return SourceResult(self.source, data, normalize_items(self.source, raws))
+
+
+def _issue_search_query(query: str, window) -> str:
+    if window.is_all_dates():
+        return query
+    return f"{query} created:>{window.start}"
 
 
 def _github_token(config: dict) -> str | None:

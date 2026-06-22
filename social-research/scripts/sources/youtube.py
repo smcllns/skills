@@ -7,6 +7,8 @@ import subprocess
 from core.normalize import normalize_items
 from core.models import SearchConfig, SourceResult
 
+from .http import record_external_request
+
 
 class YouTubeAdapter:
     source = "youtube"
@@ -15,6 +17,10 @@ class YouTubeAdapter:
         if not shutil.which("yt-dlp"):
             return SourceResult(self.source, [], [], "yt-dlp is not installed")
         cmd = ["yt-dlp", "--dump-json", "--flat-playlist", f"ytsearch{config.limit}:{query}"]
+        # yt-dlp is a subprocess (not sources.http), so record the scrape call
+        # explicitly — otherwise YouTube would vanish from the usage record despite
+        # being a flagged ToS-risky path.
+        record_external_request()
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
         if result.returncode != 0:
             return SourceResult(self.source, {"stderr": result.stderr}, [], result.stderr.strip() or "yt-dlp failed")

@@ -13,11 +13,18 @@ def render_markdown(
     items: list[SourceItem],
     raw_artifact_path: Path,
     errors_by_source: dict[str, str] | None = None,
+    window_dropped: dict[str, int] | None = None,
+    silent_zero_sources: list[str] | None = None,
 ) -> str:
+    window_line = (
+        "Window: all dates (ranked by relevance)"
+        if window.is_all_dates()
+        else f"Window: {window.start} to {window.end}"
+    )
     lines = [
         f"# Social Research: {query}",
         "",
-        f"Window: {window.start} to {window.end}",
+        window_line,
         "",
         "## Source Coverage",
         "",
@@ -31,6 +38,29 @@ def render_markdown(
     if errors_by_source:
         for source, error in sorted(errors_by_source.items()):
             lines.append(f"- {source}: error: {error}")
+    if window_dropped:
+        for source, dropped in sorted(window_dropped.items()):
+            lines.append(
+                f"- {source}: {dropped} collected but dropped as outside the window "
+                f"({window.start} to {window.end}) — widen with `--lookback-days` (try `--calibrate`)"
+            )
+
+    # Sources that were queried but produced no items at all (no error, no window
+    # drop, nothing even before dedupe/ranking) — a silent zero. For high-coverage
+    # sources this is usually a defect (over-narrow query / broken connection), not
+    # a true absence; the adversarial review must interrogate it, not accept "no
+    # data". Computed in the pipeline from pre-rank production so a source whose
+    # items were merely deduped or truncated out of the final list is NOT flagged.
+    if silent_zero_sources:
+        lines.append("")
+        lines.append("### Sanity check — sources returned 0 (no error)")
+        lines.append(
+            "Verify these are genuinely empty, not a broken connection / too-narrow "
+            "query. Implausible for high-coverage sources — inspect `raw/<source>.json` "
+            "and re-probe with a simpler query before accepting:"
+        )
+        for source in sorted(silent_zero_sources):
+            lines.append(f"- {source}: queried, 0 items, no error")
 
     lines.extend(["", "## Top Findings", ""])
     if not items:

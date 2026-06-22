@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from .models import LookbackWindow
+from .models import ALL_DATES_END, ALL_DATES_START, LookbackWindow
 
 
 def utc_now() -> datetime:
@@ -10,10 +10,16 @@ def utc_now() -> datetime:
 
 
 def lookback_window(days: int, now: datetime | None = None) -> LookbackWindow:
-    if days <= 0:
-        raise ValueError("lookback days must be positive")
+    if days < 0:
+        # Guard typos like `--lookback-days -30`; 0 is the explicit no-window opt-in.
+        raise ValueError("lookback days cannot be negative; use 0 for no window")
     current = now or utc_now()
     end = current.date()
+    if days == 0:
+        # No window: rank by relevance, keep ALL dated items including any
+        # future-dated ones (what --calibrate recommends for evergreen topics
+        # whose evidence spans years). Sentinels span the full date range.
+        return LookbackWindow(start=ALL_DATES_START, end=ALL_DATES_END)
     start = end - timedelta(days=days)
     return LookbackWindow(start=start.isoformat(), end=end.isoformat())
 
