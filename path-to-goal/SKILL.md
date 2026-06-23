@@ -10,7 +10,7 @@ With ELI10 clarity, summarize:
 - goal, one sentence
 - current status, 1-3 need to know sentences
 - in a new section, numbered path from start to goal with ✅ or ⬜, including each numbered decision in its step when it becomes blocking
-- in a new section, all the numbered decisions you need from me to move forward, as well-articulated one-line questions in bold followed by a table of lettered options to enable shorthand responses like `1a 2c 3b`. Highlight your recommended options with `★`. 
+- in a new section, all the numbered decisions you need from me to move forward, as well-articulated one-line questions in bold followed by a table of lettered options in order to enable shorthand responses like `1a 2c 3b`. Highlight your recommended options with `★`. 
 - If there are no decisions to make, say so clearly.
 
 If there are decisions to make, remind the user of shorthand options they can respond with:
@@ -18,7 +18,7 @@ If there are decisions to make, remind the user of shorthand options they can re
 - `lgtm` accepts ★
 - `1a 2b 3b` to choose (exclude if single decision)
 - `1?` request more detail and confidence on decision 1 before deciding
-- `q` launch AskUser tool for these decisions (exclude if no built-in tool)
+- `q` launch built-in tool for user input (exclude if no tool)
 
 ## Readability
 
@@ -32,17 +32,9 @@ The value of this skill is condensing a lot of complex information into a form t
 - Negligible tradeoffs are not listed. 
 - Differences in difficulty or effort for agent or wall clock time are out of scope as tradeoffs.
 - If an option includes "I" or "you" the decision question must make it clear that "you" refers to the user e.g. "I (agent) will..."
+- Prefix your path-to-goal response with a separator block — so the user can
+instantly spot where the report starts — then continue with the normal summary. The token-efficient block is a centered 1-col table, first row a line of `·` (middot) repeated to span one visual row — best-effort viewport width, **default 80** if unknown. Second row title: `PATH · TO · GOAL`. Then a blank line, and the summary begins (`**Goal:** ...`).
 - No other emojis or icons
-
-### Terminal separator
-
-- In terminal or other text heavy conversations, start your response with a diamond row (estimate length for a single visual row, if terminal or unknown width, use 80 diamond chars), blank line, title text, blank line, then your summary:
-
-◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇
-
-PATH · TO · GOAL
-
-**Goal:** ...
 
 ## Shorthand responses
 
