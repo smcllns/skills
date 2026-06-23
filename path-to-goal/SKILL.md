@@ -9,7 +9,7 @@ With ELI10 clarity, summarize:
 
 - goal, one sentence
 - current status, 1-3 need to know sentences
-- in a new section, numbered path from start to goal with ✅ or ⬜, including each numbered decision in its step when it becomes blocking
+- in a new section, numbered path to goal from the start with ✅ or ⬜, including each numbered decision in its step when it becomes blocking
 - in a new section, all the numbered decisions you need from me to move forward, as well-articulated one-line questions in bold followed by a table of lettered options in order to enable shorthand responses like `1a 2c 3b`. Highlight your recommended options with `★`. 
 - If there are no decisions to make, say so clearly.
 
@@ -32,12 +32,12 @@ The value of this skill is condensing a lot of complex information into a form t
 - Negligible tradeoffs are not listed. 
 - Differences in difficulty or effort for agent or wall clock time are out of scope as tradeoffs.
 - If an option includes "I" or "you" the decision question must make it clear that "you" refers to the user e.g. "I (agent) will..."
-- Prefix your path-to-goal response with a separator block — so the user can
-instantly spot where the report starts — then continue with the normal summary. The token-efficient block is a centered 1-col table, first row a line of `·` (middot) repeated to span one visual row — best-effort viewport width, **default 80** if unknown. Second row title: `PATH · TO · GOAL`. Then a blank line, and the summary begins (`**Goal:** ...`).
+- Prefix your path-to-goal response with a separator block — so the user can instantly spot where the report starts — then continue with the normal summary. The token-efficient block is a centered 1-col table, first row a line of `·` (middot) repeated to span one visual row — best-effort viewport width, **default 80** if unknown. Second row title: `PATH · TO · GOAL`. Then a blank line, and the summary begins (`**Goal:** ...`).
 - No other emojis or icons
 
 ## Shorthand responses
 
-If user responds `q`, it means launch your tool for collecting user input, like `AskUserQuestion` or `request_user_input` or similar to collect  inputs to each of these decisions
+Expanded instructions for some shorthand responses:
 
-If user responds `1?` it means "I can't decide on Decision 2 with this level of info. Follow up with the next level of detail and 3x char budgets and revisit this decision singularly next." Do not consume chars on duplicative points, focus on providing the single best description of each point once. 
+- If user responds `q`, it means launch your built-in tool for collecting user input, like `AskUserQuestion` or `request_user_input` or similar to collect user responses to each of these decisions. Follow the same decision numbers and formatting as closely as your built-in tool allows.
+- If user responds `1?` it means "I can't decide on Decision 1 with the provided level of info. Follow up with the next level of detail and 3x char budgets and revisit this decision singularly next. Do not consume chars on duplicative points, focus on providing the single best description of each point once."
