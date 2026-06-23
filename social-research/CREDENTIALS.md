@@ -23,6 +23,8 @@ Preferred order:
 2. Export short-lived environment variables for the command.
 3. As a local-only fallback, put secrets in `~/.social-research/credentials.local.json`.
 
+For real user-requested research, preflight credentials for the selected sources before running. Missing credentials are acceptable for `--mock` and local smoke tests; for decision-grade runs, fetch available keys first or explicitly record the blocked source before proceeding.
+
 GitHub also accepts `gh auth token`, so a working authenticated `gh` CLI is enough for that source.
 
 ## Sources
@@ -33,7 +35,7 @@ GitHub also accepts `gh auth token`, so a working authenticated `gh` CLI is enou
 | `hackernews` | none | Uses Algolia HN search. |
 | `github` | `GITHUB_TOKEN` or `gh auth token` | Searches GitHub issues/PRs. |
 | `youtube` | `yt-dlp` | No API key. Search quality depends on YouTube allowing local `yt-dlp` search. |
-| `x` | `X_BEARER_TOKEN` | Uses X API v2 recent search. |
+| `x` | `X_BEARER_TOKEN` | Uses X API v2 Full-Archive Search (`search/all`) plus `counts/all` preflight for evergreen research. The token's X developer project must have access to those endpoints. |
 | `web` | one of `BRAVE_API_KEY`, `SERPER_API_KEY`, `EXA_API_KEY`, `PARALLEL_API_KEY` | Uses the first configured web-search provider in that order. |
 | `polymarket` | none | Uses Polymarket public Gamma API. |
 | `tiktok` | `SCRAPECREATORS_API_KEY` | Uses ScrapeCreators. |

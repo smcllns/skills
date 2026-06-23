@@ -5,6 +5,10 @@ from pathlib import Path
 from typing import Any
 
 
+ALL_DATES_START = "0001-01-01"
+ALL_DATES_END = "9999-12-31"
+
+
 DEFAULT_SOURCES = [
     "reddit",
     "hackernews",
@@ -36,6 +40,9 @@ def _clean(value: Any) -> Any:
 class LookbackWindow:
     start: str
     end: str
+
+    def is_all_dates(self) -> bool:
+        return self.start == ALL_DATES_START and self.end == ALL_DATES_END
 
     def to_dict(self) -> dict[str, str]:
         return {"start": self.start, "end": self.end}
@@ -88,7 +95,7 @@ class SourceResult:
 class SearchConfig:
     query: str
     sources: list[str] = field(default_factory=lambda: list(DEFAULT_SOURCES))
-    lookback_days: int = 30
+    lookback_days: int = 365
     limit: int = 20
     output_root: Path = field(default_factory=lambda: Path.home() / ".social-research" / "searches")
     config: dict[str, Any] = field(default_factory=dict)
@@ -112,6 +119,9 @@ class SearchReport:
     raw_by_source: dict[str, Any]
     errors_by_source: dict[str, str]
     markdown: str
+    # source -> count of items collected but dropped because their date fell
+    # outside the window. Surfaces silent over-filtering (the 30-day-default bug).
+    window_dropped: dict[str, int] = field(default_factory=dict)
 
     def normalized_payload(self) -> dict[str, Any]:
         return {
@@ -119,4 +129,5 @@ class SearchReport:
             "window": self.window.to_dict(),
             "items": [item.to_dict() for item in self.items],
             "errors_by_source": dict(self.errors_by_source),
+            "window_dropped": dict(self.window_dropped),
         }
